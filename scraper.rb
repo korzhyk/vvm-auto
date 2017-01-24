@@ -70,15 +70,21 @@ def parse_article(data={})
     i.attribute('src').value = $agent.resolve(i.attribute('src').value).to_s
   end
 
-  # content.each do |n|
-  #   n.remove if n.empty?
-  # end
+  remove_empty(content)
+
   html = content.to_html(options: Nokogiri::XML::Node::SaveOptions.new.no_empty_tags)
 
   data.merge!({
     html: html,
     md: ReverseMarkdown.convert(html)
   })
+end
+
+def remove_empty(node)
+  p "#{node} has #{node.length}"
+  node.children.each do |n|
+    n.remove if n.empty?
+  end
 end
 
 def scrape_image(url)
