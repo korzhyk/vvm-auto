@@ -13,8 +13,12 @@ def parse_page(url, data={})
     url = annotation.search('a').first.attribute('href').value
     id = /\/(\d+)-/.match(url)[1].to_i
 
-    article = ScraperWiki.select('* FROM data WHERE id = ? LIMIT 1', id)
-    p article.to_s
+    begin
+      article = ScraperWiki.select('* FROM data WHERE id = ? LIMIT 1', id)
+      p article.to_s
+    rescue => error
+      p "Database error: #{error.to_s}"
+    end
 
     title = annotation.search('a').first.child.content.strip
     annotation_text = annotation.search('p').try(:first) { |p| p ? p.child.content : nil  }
