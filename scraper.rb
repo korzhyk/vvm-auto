@@ -27,7 +27,7 @@ def parse_page(url, data={})
     data.merge!({
       id: id,
       title: title,
-      annotation_text: annotation_text,
+      annotation_text: ReverseMarkdown.convert(annotation_text),
       annotation_image: "#{$site_url}#{annotation_image}",
       url: "#{$site_url}#{url}"
     })
