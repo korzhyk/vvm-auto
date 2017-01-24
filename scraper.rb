@@ -4,14 +4,15 @@ require 'mechanize'
 $site_url = "http://vvm-auto.ru"
 
 def parse_page(url, data={})
+  return if url.nil?
   agent = Mechanize.new
   page = agent.get("#{$site_url}/#{url}")
   annotations = page.search('#content [itemprop="blogPost"]')
   annotations.each do |annotation|
     url = annotation.search('a').first.attribute('href').value
     title = annotation.search('a').first.child.content.strip
-    annotation_text = annotation.search('p').first.child.content
-    annotation_image = annotation.search('[itemprop="thumbnailUrl"]').first.attribute('src').value
+    annotation_text = annotation.search('p').try(:first) { |p| p ? p.child.content : nil  }
+    annotation_image = annotation.search('[itemprop="thumbnailUrl"]').try(:first) { |i| i.attribute('src').value ? nil  }
     data.merge!({
       title: title,
       annotation_text: annotation_text,
@@ -27,6 +28,7 @@ def parse_page(url, data={})
 end
 
 def parse_article(url, data={})
+  return if url.nil?
   id = /\/(\d+)-/.match(url)[1].to_i
   url = "#{$site_url}#{url}"
   agent = Mechanize.new
