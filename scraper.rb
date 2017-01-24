@@ -9,8 +9,8 @@ $image_scraped = nil
 
 def parse_pages(url, data={})
   return if url.nil?
-  p "Parsing #{data[:type]} from #{$site_url}#{url}"
-  page = $agent.get("#{$site_url}#{url}")
+  p "Parsing #{data[:type]} from #{url}"
+  page = $agent.get(url)
   next_page_link = page.search('span.icon-next').length ? page.search('span.icon-next').first.parent.attribute('href').value : nil
   parse_page(data)
   p next_page_link
@@ -40,7 +40,7 @@ def parse_page(data={})
     annotation_image = post.search('[itemprop="thumbnailUrl"]').first.nil? ? nil : post.search('[itemprop="thumbnailUrl"]').attribute('src').value
 
     if annotation_image && !$image_scraped
-      $image_scraped = scrape_image("#{$site_url}#{annotation_image}")
+      $image_scraped = scrape_image($agent.resolve(annotation_image))
       p $image_scraped
     end
 
@@ -92,5 +92,5 @@ end
   tests: "test-obzor"
 }.each do |type, url|
   p "[debug] Load #{type} from #{url}"
-  parse_pages("/" << url, type: type.to_s)
+  parse_pages($agent.resolve("/" << url), type: type.to_s)
 end
