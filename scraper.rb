@@ -81,7 +81,8 @@ def parse_article(data={})
 end
 
 def remove_empty(nodeset)
-  nodeset.children.each do |n|
+  nodeset.each do |n|
+    p n
     if n.blank?
       n.remove 
     else
