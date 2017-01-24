@@ -38,11 +38,6 @@ def parse_page(data={})
     annotation_text = post.search('p').first.nil? ? nil : post.search('p').first.child.content
     annotation_image = post.search('[itemprop="thumbnailUrl"]').first.nil? ? nil : post.search('[itemprop="thumbnailUrl"]').attribute('src').value
 
-    if annotation_image && !$image_scraped
-      $image_scraped = scrape_image($agent.resolve(annotation_image))
-      p "[debug] #{$image_scraped}"
-    end
-
     data.merge!({
       id: id,
       title: title,
@@ -54,6 +49,7 @@ def parse_page(data={})
     parse_article(data)
     ScraperWiki.save_sqlite([:id], data)
     p "[debug] Article with id = #{data[:id]} was parsed, full link: #{url}"
+    sleep 5
   end
 end
 
@@ -71,7 +67,7 @@ def parse_article(data={})
 
   remove_empty(content)
 
-  html = content.to_s.strip
+  html = content.to_xhtml.strip
   md = ReverseMarkdown.convert(html)
   
   data.merge!({
@@ -102,9 +98,7 @@ def scrape_image(url)
   return nil unless url
   image = $agent.get_file(url)
   p "[debug] image #{url} fetched, size is: #{image.length}"
-  image = ScraperWiki.save_sqlite([:url], { url: url.to_s, blob: image })
-  p image.first
-  image || nil
+  ScraperWiki.save_sqlite([:url], { url: url.to_s, blob: image }, 'images').first
 end
 
 
