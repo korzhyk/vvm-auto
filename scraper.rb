@@ -82,15 +82,17 @@ end
 
 $i = 0
 
-def remove_empty(node)
+def remove_empty(node, parent=nil)
+
   if node.blank?
     node.remove
-    return #remove_empty(node)
-  else
-    node.children.each do |n|
-      remove_empty(n)
+    if parent && parent.empty?
+      parent.remove
     end
+  else
+    node.children.each { |c| remove_empty(c, node) }  
   end
+
   if $i < 50
     p "Node [blank:#{node.blank?}|empty:#{node.children.empty?}|text:#{node.text.strip.size}] #{node.inspect}"
     $i += 1
