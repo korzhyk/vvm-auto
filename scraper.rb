@@ -15,7 +15,7 @@ def parse_page(url, data={})
 
     begin
       article = ScraperWiki.select('* FROM data WHERE id = ? LIMIT 1', [id]).first
-      return if article.nil?
+      return if !article.nil?
     rescue => error
       p "Database error: #{error.to_s}"
     end
