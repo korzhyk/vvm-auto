@@ -1,5 +1,6 @@
 require 'scraperwiki'
 require 'mechanize'
+require 'nokogiri'
 require 'reverse_markdown'
 
 $agent = Mechanize.new
@@ -65,13 +66,11 @@ def parse_article(data={})
 
   content = page.search('[itemprop="articleBody"]').first
   content.search('div.custom').each { |d| d.remove }
-  content.search('*').each do |c|
-    c.remove if c.blank?
-    c.attributes.clear
-  end
   content.search('img').each do |i|
-    i.attribute('src').value = $site_url + i.attribute('src').value
+    i.attribute('src').value = $agent.resolve(i.attribute('src').value)
   end
+
+  content = Nokogiri::HTML::DocumentFragment.parse(content, options: Nokogiri::XML::ParseOptions.new.noblanks)
 
   data.merge!({
     content: ReverseMarkdown.convert(content.to_s)
