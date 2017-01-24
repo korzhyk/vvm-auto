@@ -91,6 +91,7 @@ end
   articles: "publikatsii",
   tests: "test-obzor"
 }.each do |type, url|
+  url = $site_url + "/" + url
   p "[debug] Load #{type} from #{url}"
-  parse_pages($agent.resolve("/" << url), type: type.to_s)
+  parse_pages(url, type: type.to_s)
 end
