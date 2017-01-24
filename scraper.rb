@@ -31,7 +31,7 @@ def parse_page(url, data={})
       url: "#{$site_url}#{url}"
     })
     parse_article("#{$site_url}#{url}", data)
-    ScraperWiki.save_sqlite([%[id]], data)
+    ScraperWiki.save_sqlite([:id], data)
     p "#{data[:id]} - #{data[:title]} - #{data[:url]}"
   end
   next_page_links = page.search('span.icon-next')
