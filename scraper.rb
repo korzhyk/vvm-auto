@@ -90,7 +90,7 @@ def remove_empty(node)
     node.remove 
   end
   if $i < 50
-    p "Node [blank:#{node.blank?}|empty:#{node.children.empty?}|text:#{!node.text.strip}] #{node.inspect}"
+    p "Node [blank:#{node.blank?}|empty:#{node.children.empty?}|text:#{node.text}] #{node.inspect}"
     $i += 1
   end
 end
