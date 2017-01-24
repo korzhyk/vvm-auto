@@ -70,8 +70,6 @@ def parse_article(data={})
     i.attribute('src').value = $agent.resolve(i.attribute('src').value).to_s
   end
 
-  p content
-
   remove_empty(content)
 
   html = content.inner_html
@@ -82,11 +80,11 @@ def parse_article(data={})
   })
 end
 
-def remove_empty(nodeset)
-  nodeset.each do |n|
-    p n
+def remove_empty(node)
+  node.children.each do |n|
     if n.blank?
-      n.remove 
+      n.remove
+      p "Removing #{n}"
     else
       remove_empty(n)
     end
