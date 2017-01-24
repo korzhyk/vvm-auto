@@ -3,6 +3,18 @@ require 'mechanize'
 
 agent = Mechanize.new
 
+def parse_page(url, data={})
+  data.merge!({
+    id: 1,
+    type: 'experience',
+    title: 'Title',
+    annotation_image: 'Annotation image',
+    annotation_text: 'Annotation',
+    article: 'Full text',
+    url: url
+  }).to_s
+end
+
 {
   experience: "http://vvm-auto.ru/opyt-ekspluatatsii",
   articles: "http://vvm-auto.ru/publikatsii",
@@ -24,18 +36,4 @@ agent = Mechanize.new
     puts parse_page(url, data)
   end
   
-end
-
-
-
-def parse_page(url, data={})
-  data.merge!({
-    id: 1,
-    type: 'experience',
-    title: 'Title',
-    annotation_image: 'Annotation image',
-    annotation_text: 'Annotation',
-    article: 'Full text',
-    url: url
-  }).to_s
 end
