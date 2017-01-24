@@ -9,7 +9,7 @@ def parse_page(url, data={})
 
   content = page.search('[itemprop="articleBody"]').first
   content.search('div.custom').each { |d| d.remove }
-  content.children.each do |c|
+  content.search('*').each do |c|
     c.remove if c.blank?
     c.attributes.clear
   end
@@ -17,9 +17,9 @@ def parse_page(url, data={})
   id = /\/(\d+)-/.match(url).to_s.to_i
   data.merge!({
     id: id,
-    content: content,
+    content: content.to_s,
     url: url
-  }).to_s
+  })
 end
 
 {
@@ -40,9 +40,11 @@ end
       title: title,
       type: type,
       annotation_text: annotation_text,
-      annotation_image: annotation_image
+      annotation_image: "#{$site_url}#{annotation_image}"
     }
-    puts parse_page(url, data)
+    parse_page(url, data)
+    ScraperWiki.save_sqlite([data.id], data)
+    puts data.to_s
   end
   
 end
