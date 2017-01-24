@@ -80,9 +80,9 @@ def parse_article(data={})
   })
 end
 
-def remove_empty(node)
-  p "#{node} has #{node.length}"
-  node.children.each do |n|
+def remove_empty(nodeset)
+  p "#{nodeset} has #{nodeset.children.length}"
+  nodeset.children.each do |n|
     n.remove if n.empty?
   end
 end
