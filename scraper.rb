@@ -70,9 +70,11 @@ def parse_article(data={})
     i.attribute('src').value = $agent.resolve(i.attribute('src').value).to_s
   end
 
+  p content
+
   remove_empty(content)
 
-  html = content.to_html(options: Nokogiri::XML::Node::SaveOptions.new.no_empty_tags)
+  html = content.inner_html
 
   data.merge!({
     html: html,
