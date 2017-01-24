@@ -69,5 +69,5 @@ end
 }.each do |type, url|
   p "[debug] Load #{type} from #{url}"
   
-  parse_page("/" << url, type: type)
+  parse_page("/" << url, type: type.to_s)
 end
