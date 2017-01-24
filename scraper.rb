@@ -3,15 +3,21 @@ require 'mechanize'
 require 'reverse_markdown'
 
 $site_url = "http://vvm-auto.ru"
+$image_scraped = nil
+
+
+def parse_pages(url)
+
+end
 
 def parse_page(url, data={})
   return if url.nil?
   p "Parsing #{data[:type]} from #{$site_url}#{url}"
   agent = Mechanize.new
   page = agent.get("#{$site_url}#{url}")
-  annotations = page.search('#content [itemprop="blogPost"]')
-  annotations.each do |annotation|
-    url = annotation.search('a').first.attribute('href').value
+  posts = page.search('#content [itemprop="blogPost"]')
+  posts.each do |post|
+    url = post.search('a').first.attribute('href').value
     id = /\/(\d+)-/.match(url)[1].to_i
 
     begin
@@ -21,9 +27,15 @@ def parse_page(url, data={})
       p "Database error: #{error.to_s}"
     end
 
-    title = annotation.search('a').first.child.content.strip
-    annotation_text = annotation.search('p').first.nil? ? nil : annotation.search('p').first.child.content
-    annotation_image = annotation.search('[itemprop="thumbnailUrl"]').first.nil? ? nil : annotation.search('[itemprop="thumbnailUrl"]').attribute('src').value
+    title = post.search('a').first.child.content.strip
+    annotation_text = post.search('p').first.nil? ? nil : post.search('p').first.child.content
+    annotation_image = post.search('[itemprop="thumbnailUrl"]').first.nil? ? nil : post.search('[itemprop="thumbnailUrl"]').attribute('src').value
+
+    if annotation_image && !$image_scraped
+      $image_scraped = scrape_image("#{$site_url}#{annotation_image}")
+      p $image_scraped
+    end
+
     data.merge!({
       id: id,
       title: title,
@@ -33,7 +45,7 @@ def parse_page(url, data={})
     })
     parse_article("#{$site_url}#{url}", data)
     ScraperWiki.save_sqlite([:id], data)
-    p "#{data[:id]} - #{data[:title]} - #{data[:url]}"
+    #p "#{data[:id]} - #{data[:title]} - #{data[:url]}"
     sleep 1
   end
   next_page_links = page.search('span.icon-next')
@@ -65,6 +77,14 @@ def parse_article(url, data={})
     content: ReverseMarkdown.convert(content.to_s)
   })
 end
+
+def scrape_image(url)
+  return nil unless url
+  image = ScraperWiki.scrape(url)
+  p image
+  image ? "sqlite://data.db/images/1" : nil
+end
+
 
 {
   experience: "opyt-ekspluatatsii",
