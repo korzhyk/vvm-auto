@@ -50,7 +50,7 @@ def parse_page(data={})
       title: title,
       annotation_text: ReverseMarkdown.convert(annotation_text),
       annotation_image: "#{$site_url}#{annotation_image}",
-      url: $agent.resolve(url)
+      url: $agent.resolve(url).to_s
     })
     $agent.get($agent.resolve url)
     parse_article("#{$site_url}#{url}", data)
