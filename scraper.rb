@@ -43,7 +43,7 @@ end
       annotation_image: "#{$site_url}#{annotation_image}"
     }
     parse_page(url, data)
-    ScraperWiki.save_sqlite([data[:id]], data)
+    #ScraperWiki.save_sqlite([data[:id]], data)
     p data.to_s
   end
   
