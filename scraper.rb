@@ -56,7 +56,7 @@ def parse_page(data={})
     parse_article(data)
     ScraperWiki.save_sqlite([:id], data)
     p "[debug] Article with id = #{data[:id]} was parsed, full link: #{url}"
-    sleep 5
+    sleep 60
   end
 end
 
@@ -73,23 +73,32 @@ def parse_article(data={})
   remove_empty(content)
 
   html = content.to_s
-
+  md = ReverseMarkdown.convert(html)
+  
   data.merge!({
     html: html,
-    md: ReverseMarkdown.convert(html)
+    md: md
   })
 end
 
 $i = 0
-
-def remove_empty(node, parent=nil)
-  if node.blank?
+def remove_empty(node)
+  unless node.children.empty?
+    node.children.each { |c| remove_empty(c) }  
+  end
+  
+  if node.text? && node.blank?
+    p "remove text #{node.keys}"
     node.remove
-    if parent && parent.children.empty?
-      parent.remove
-    end
-  else
-    node.children.each { |c| remove_empty(c, node) }  
+  end
+  if !node.text? && !node.element? && node.children.empty?
+    p "remove element #{node.keys}"
+    node.remove
+  end
+  
+  if $i < 50
+    p "Node [blank:#{node.blank?}|empty:#{node.children.empty?}|text:#{node.text.strip.size}] #{node.values}"
+    $i += 1
   end
 end
 
@@ -97,7 +106,7 @@ def scrape_image(url)
   return nil unless url
   image = $agent.get_file(url)
   p "[debug] image #{url} fetched, size is: #{image.length}"
-  image ? "sqlite://data.db/images/1" : nil
+  image ? "sqlite://data.sqlite/images/1" : nil
 end
 
 
