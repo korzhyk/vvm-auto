@@ -28,9 +28,9 @@ end
 
 def parse_article(url, data={})
   id = /\/(\d+)-/.match(url)[1].to_i
-  url = "#{$site_url}#{url}"
+  url = "#{$site_url}/#{url}"
   agent = Mechanize.new
-  page = agent.get()
+  page = agent.get(url)
 
   content = page.search('[itemprop="articleBody"]').first
   content.search('div.custom').each { |d| d.remove }
