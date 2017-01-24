@@ -21,8 +21,8 @@ def parse_page(url, data={})
     end
 
     title = annotation.search('a').first.child.content.strip
-    annotation_text = annotation.search('p').try(:first) { |p| p ? p.child.content : nil  }
-    annotation_image = annotation.search('[itemprop="thumbnailUrl"]').try(:first) { |i| i ? i.attribute('src').value : nil  }
+    annotation_text = annotation.search('p').length ? annotation.search('p').first.child.content : nil
+    annotation_image = annotation.search('[itemprop="thumbnailUrl"]').length ? annotation.search('[itemprop="thumbnailUrl"]').attribute('src').value : nil
     data.merge!({
       id: id,
       title: title,
