@@ -13,7 +13,7 @@ def parse_page(url, data={})
     url = annotation.search('a').first.attribute('href').value
     id = /\/(\d+)-/.match(url)[1].to_i
 
-    article = ScraperWiki.select('WHERE id = ?', id)
+    article = ScraperWiki.select('* FROM data WHERE id = ? LIMIT 1', id)
     p article.to_s
 
     title = annotation.search('a').first.child.content.strip
@@ -27,7 +27,7 @@ def parse_page(url, data={})
       url: url
     })
     parse_article("#{$site_url}#{url}", data)
-    ScraperWiki.save_sqlite([data[:id]], data)
+    ScraperWiki.save_sqlite([:id], data)
     p "#{data[:id]} - #{data[:title]} - #{data[:url]}"
   end
   next_page_links = page.search('span.icon-next')
