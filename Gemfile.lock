@@ -30,14 +30,20 @@ GEM
     mini_portile2 (2.1.0)
     net-http-digest_auth (1.4)
     net-http-persistent (2.9.4)
+    nokogiri (1.7.0.1)
+      mini_portile2 (~> 2.1.0)
     nokogiri (1.7.0.1-x64-mingw32)
       mini_portile2 (~> 2.1.0)
     ntlm-http (0.1.1)
+    reverse_markdown (1.0.3)
+      nokogiri
+    sqlite3 (1.3.13)
     sqlite3 (1.3.13-x64-mingw32)
     sqlite_magic (0.0.6)
       sqlite3
     unf (0.1.4)
       unf_ext
+    unf_ext (0.0.7.2)
     unf_ext (0.0.7.2-x64-mingw32)
     webrobots (0.1.2)
 
@@ -46,7 +52,7 @@ PLATFORMS
 
 DEPENDENCIES
   mechanize
-  nokogiri
+  reverse_markdown
   scraperwiki!
 
 RUBY VERSION

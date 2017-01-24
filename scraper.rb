@@ -1,5 +1,6 @@
 require 'scraperwiki'
 require 'mechanize'
+require 'reverse_markdown'
 
 $site_url = "http://vvm-auto.ru"
 
@@ -60,7 +61,7 @@ def parse_article(url, data={})
   end
 
   data.merge!({
-    content: content.to_s
+    content: ReverseMarkdown.convert(content.to_s)
   })
 end
 
