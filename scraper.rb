@@ -12,16 +12,17 @@ def parse_pages(url, data={})
   p "Parsing #{data[:type]} from #{$site_url}#{url}"
   #agent = Mechanize.new
   page = $agent.get("#{$site_url}#{url}")
-  next_page_link = page.search('span.icon-next').first
-  parse_page(page, data)
+  next_page_link = page.search('span.icon-next').first.parent
+  parse_page(data)
   unless next_page_link.nil?
-    next_page_link.click
+    $agent.get($agent.resolve next_page_link['href'])
     p "Go to next page #{next_page_link['href']}"
-    parse_page($agent.page, type: data[:type]) 
+    parse_page(type: data[:type]) 
   end
 end
 
-def parse_page(page, data={})
+def parse_page(data={})
+  page = $agent.page
   posts = page.search('#content [itemprop="blogPost"]')
   posts.each do |post|
     link_to_post = post.search('a').first
@@ -51,7 +52,7 @@ def parse_page(page, data={})
       annotation_image: "#{$site_url}#{annotation_image}",
       url: $agent.resolve(url)
     })
-    link_to_post.click
+    $agent.get($agent.resolve url)
     parse_article("#{$site_url}#{url}", data)
     ScraperWiki.save_sqlite([:id], data)
     #p "#{data[:id]} - #{data[:title]} - #{data[:url]}"
