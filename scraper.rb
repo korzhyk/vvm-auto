@@ -70,7 +70,7 @@ def parse_article(data={})
     i.attribute('src').value = $agent.resolve(i.attribute('src').value).to_s
   end
 
-  content = Nokogiri::HTML::DocumentFragment.parse(content, options: Nokogiri::XML::ParseOptions.new.noblanks)
+  content = Nokogiri::HTML.parse(content, options: Nokogiri::XML::ParseOptions.new.noblanks)
 
   data.merge!({
     content: ReverseMarkdown.convert(content.to_s)
