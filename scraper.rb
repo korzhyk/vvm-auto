@@ -80,6 +80,8 @@ def parse_article(data={})
   })
 end
 
+$i = 0
+
 def remove_empty(node)
   node.children.each do |n|
     remove_empty(n)
@@ -87,6 +89,10 @@ def remove_empty(node)
   if node.blank?
     node.remove 
     p "Removing #{node}"
+  end
+  if $i < 5
+    p "Node [blank:#{node.blank?}|empty:#{node.empty?}] #{node.inspect}"
+    $i++
   end
 end
 
