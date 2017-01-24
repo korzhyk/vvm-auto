@@ -3,7 +3,6 @@ require 'mechanize'
 
 agent = Mechanize.new
 
-id_re = /\/(\d+)-/
 site_url = "http://vvm-auto.ru"
 
 def parse_page(url, data={})
@@ -11,7 +10,7 @@ def parse_page(url, data={})
 
   content = page.search('[itemprop="articleBody"]').first.to_s
 
-  id = id_re.match(url).to_s.to_i
+  id = /\/(\d+)-/.match(url).to_s.to_i
   data.merge!({
     id: id,
     content: content,
