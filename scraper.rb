@@ -9,13 +9,13 @@ $image_scraped = nil
 
 def parse_pages(url, data={})
   return if url.nil?
-  p "Parsing #{data[:type]} from #{url}"
+  p "Parsing #{data[:type]} from #{$agent.resolve(next_page_link)}"
   page = $agent.get(url)
   next_page_link = page.search('span.icon-next').length ? page.search('span.icon-next').first.parent.attribute('href').value : nil
   parse_page(data)
   p next_page_link
   unless next_page_link.nil?
-    p "Go to next page #{next_page_link}"
+    p "[debug] Go to next page #{next_page_link}"
     parse_pages($agent.resolve(next_page_link), data) 
   end
 end
@@ -25,7 +25,7 @@ def parse_page(data={})
   posts = page.search('#content [itemprop="blogPost"]')
   posts.each do |post|
     link_to_post = post.search('a').first
-    url = link_to_post['href']
+    url = $agent.resolve(link_to_post.attribute('href'))
     id = /\/(\d+)-/.match(url)[1].to_i
 
     begin
@@ -49,12 +49,12 @@ def parse_page(data={})
       title: title,
       annotation_text: ReverseMarkdown.convert(annotation_text),
       annotation_image: "#{$site_url}#{annotation_image}",
-      url: $agent.resolve(url).to_s
+      url: url.to_s
     })
-    $agent.get($agent.resolve url)
+    $agent.get(url)
     parse_article(data)
     ScraperWiki.save_sqlite([:id], data)
-    #p "#{data[:id]} - #{data[:title]} - #{data[:url]}"
+    p "[debug] Article with id = #{data[:id]} was parsed, full link: #{url}"
     sleep 1
   end
 end
@@ -81,7 +81,7 @@ end
 def scrape_image(url)
   return nil unless url
   image = $agent.get_file(url)
-  p image
+  p "[debug] image #{url} fetched, size is: #{image.length}"
   image ? "sqlite://data.db/images/1" : nil
 end
 
