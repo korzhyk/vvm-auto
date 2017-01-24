@@ -15,7 +15,7 @@ def parse_pages(url, data={})
   next_page_link = page.search('span.icon-next').length ? page.search('span.icon-next').first.parent.attribute('href').value : nil
   parse_page(data)
   p next_page_link
-  unless next_page_link.nil?
+  unless true || next_page_link.nil?
     p "[debug] Go to next page #{next_page_link}"
     parse_pages($agent.resolve(next_page_link), data) 
   end
@@ -67,7 +67,7 @@ def parse_article(data={})
   content = page.search('[itemprop="articleBody"]').first
   content.search('div.custom').each { |d| d.remove }
   content.search('img').each do |i|
-    i.attribute('src').value = $agent.resolve(i.attribute('src').value)
+    i.attribute('src').value = $agent.resolve(i.attribute('src').value).to_s
   end
 
   content = Nokogiri::HTML::DocumentFragment.parse(content, options: Nokogiri::XML::ParseOptions.new.noblanks)
