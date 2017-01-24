@@ -7,14 +7,14 @@ def parse_page(url, data={})
   return if url.nil?
   p "Parsing #{data[:type]} from #{url}"
   agent = Mechanize.new
-  page = agent.get("#{$site_url}/#{url}")
+  page = agent.get("#{$site_url}#{url}")
   annotations = page.search('#content [itemprop="blogPost"]')
   annotations.each do |annotation|
     url = annotation.search('a').first.attribute('href').value
     id = /\/(\d+)-/.match(url)[1].to_i
 
     begin
-      article = ScraperWiki.select('* FROM data WHERE id = ? LIMIT 1', id)
+      article = ScraperWiki.select('* FROM data WHERE id = ? LIMIT 1', [id])
       p article.to_s
     rescue => error
       p "Database error: #{error.to_s}"
@@ -28,7 +28,7 @@ def parse_page(url, data={})
       title: title,
       annotation_text: annotation_text,
       annotation_image: "#{$site_url}#{annotation_image}",
-      url: url
+      url: "#{$site_url}#{url}"
     })
     parse_article("#{$site_url}#{url}", data)
     ScraperWiki.save_sqlite([:id], data)
@@ -69,5 +69,5 @@ end
 }.each do |type, url|
   p "[debug] Load #{type} from #{url}"
   
-  parse_page(url, type: type)
+  parse_page("/" << url, type: type)
 end
