@@ -26,7 +26,7 @@ def parse_page(data={})
   posts.each do |post|
     link_to_post = post.search('a').first
     url = $agent.resolve(link_to_post.attribute('href'))
-    id = /\/(\d+)-/.match(url)[1].to_i
+    id = /\/(\d+)-/.match(url.to_s)[1].to_i
 
     begin
       article = ScraperWiki.select('* FROM data WHERE id = ? LIMIT 1', [id]).first
@@ -55,7 +55,7 @@ def parse_page(data={})
     parse_article(data)
     ScraperWiki.save_sqlite([:id], data)
     p "[debug] Article with id = #{data[:id]} was parsed, full link: #{url}"
-    sleep 1
+    sleep 5
   end
 end
 
