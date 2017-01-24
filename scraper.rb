@@ -1,4 +1,4 @@
-require 'scraperwiki'
+#require 'scraperwiki'
 require 'mechanize'
 
 agent = Mechanize.new
@@ -21,7 +21,7 @@ agent = Mechanize.new
       annotation_text: annotation_text,
       annotation_image: annotation_image
     }
-    parse_page(url, data)
+    puts parse_page(url, data)
   end
   
 end
@@ -29,7 +29,7 @@ end
 
 
 def parse_page(url, data={})
-  p data.merge!({
+  data.merge!({
     id: 1,
     type: 'experience',
     title: 'Title',
