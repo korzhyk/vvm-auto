@@ -84,7 +84,7 @@ def remove_empty(node)
   node.children.each do |n|
     remove_empty(n)
   end
-  if node.children.empty? || node.blank?
+  if node.children.empty? && node.blank?
     node.remove 
     p "Removing #{node}"
   end
