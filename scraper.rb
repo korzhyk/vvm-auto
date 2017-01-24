@@ -5,7 +5,7 @@ $site_url = "http://vvm-auto.ru"
 
 def parse_page(url, data={})
   return if url.nil?
-  p "Parsing #{data[:type]} from #{url}"
+  p "Parsing #{data[:type]} from #{$site_url}#{url}"
   agent = Mechanize.new
   page = agent.get("#{$site_url}#{url}")
   annotations = page.search('#content [itemprop="blogPost"]')
@@ -21,8 +21,8 @@ def parse_page(url, data={})
     end
 
     title = annotation.search('a').first.child.content.strip
-    annotation_text = annotation.search('p').length ? annotation.search('p').first.child.content : nil
-    annotation_image = annotation.search('[itemprop="thumbnailUrl"]').length ? annotation.search('[itemprop="thumbnailUrl"]').attribute('src').value : nil
+    annotation_text = annotation.search('p').first.nil? ? nil : annotation.search('p').first.child.content
+    annotation_image = annotation.search('[itemprop="thumbnailUrl"]').first.nil? ? nil, annotation.search('[itemprop="thumbnailUrl"]').attribute('src').value
     data.merge!({
       id: id,
       title: title,
