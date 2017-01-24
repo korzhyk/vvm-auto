@@ -10,15 +10,13 @@ $image_scraped = nil
 def parse_pages(url, data={})
   return if url.nil?
   p "Parsing #{data[:type]} from #{$site_url}#{url}"
-  #agent = Mechanize.new
   page = $agent.get("#{$site_url}#{url}")
-  next_page_link = page.search('span.icon-next').length ? page.search('span.icon-next').first.parent : nil
+  next_page_link = page.search('span.icon-next').length ? page.search('span.icon-next').first.parent.attributes('href').value : nil
   parse_page(data)
   p next_page_link
   unless next_page_link.nil?
-    $agent.get($agent.resolve next_page_link['href'])
-    p "Go to next page #{next_page_link['href']}"
-    parse_page(type: data[:type]) 
+    p "Go to next page #{next_page_link}"
+    parse_pages($agent.resolve(next_page_link), type: data[:type]) 
   end
 end
 
