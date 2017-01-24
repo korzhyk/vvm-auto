@@ -9,12 +9,10 @@ $image_scraped = nil
 
 
 def parse_pages(url, data={})
-  return if url.nil?
-  p "Parsing #{data[:type]} from #{url}"
+  p "[debug] Parsing #{data[:type]} from #{url}"
   page = $agent.get(url)
   next_page_link = page.search('span.icon-next').length ? page.search('span.icon-next').first.parent.attribute('href').value : nil
   parse_page(data)
-  p next_page_link
   unless true || next_page_link.nil?
     p "[debug] Go to next page #{next_page_link}"
     parse_pages($agent.resolve(next_page_link), data) 
@@ -42,7 +40,7 @@ def parse_page(data={})
 
     if annotation_image && !$image_scraped
       $image_scraped = scrape_image($agent.resolve(annotation_image))
-      p $image_scraped
+      p "[debug] #{$image_scraped}"
     end
 
     data.merge!({
@@ -56,7 +54,6 @@ def parse_page(data={})
     parse_article(data)
     ScraperWiki.save_sqlite([:id], data)
     p "[debug] Article with id = #{data[:id]} was parsed, full link: #{url}"
-    sleep 60
   end
 end
 
@@ -67,12 +64,14 @@ def parse_article(data={})
   content = page.search('[itemprop="articleBody"]').first
   content.search('div.custom').each { |d| d.remove }
   content.search('img').each do |i|
-    i.attribute('src').value = $agent.resolve(i.attribute('src').value).to_s
+    i['src'] = $agent.resolve(i['src']).to_s
+    scraped = scrape_image(i['src'])
+    i.remove unless scraped
   end
 
   remove_empty(content)
 
-  html = content.to_s
+  html = content.to_s.strip
   md = ReverseMarkdown.convert(html)
   
   data.merge!({
@@ -81,32 +80,31 @@ def parse_article(data={})
   })
 end
 
-$i = 0
 def remove_empty(node)
   unless node.children.empty?
     node.children.each { |c| remove_empty(c) }  
   end
-  
+  # p "==========================================================================="
   if node.text? && node.blank?
-    p "remove text #{node.keys}"
-    node.remove
-  end
-  if !node.text? && !node.element? && node.children.empty?
-    p "remove element #{node.keys}"
+    # p "remove text #{node.keys}"
     node.remove
   end
   
-  if $i < 50
-    p "Node [blank:#{node.blank?}|empty:#{node.children.empty?}|text:#{node.text.strip.size}] #{node.values}"
-    $i += 1
-  end
+  if node.name != 'img' && !node['src'] && !node.text? && node.children.empty?
+    # p "remove element #{node.name}"
+    node.remove
+  end  
+  # p "Node [type:#{node.type} | text:#{node.text?} | element:#{node.element?} | fragment:#{node.fragment?}]"
+  # p "Node [blank:#{node.blank?} | empty:#{node.children.empty?} | read_only:#{node.read_only?}] #{node}"
 end
 
 def scrape_image(url)
   return nil unless url
   image = $agent.get_file(url)
   p "[debug] image #{url} fetched, size is: #{image.length}"
-  image ? "sqlite://data.sqlite/images/1" : nil
+  image = ScraperWiki.save_sqlite([:url], { url: url.to_s, blob: image })
+  p image.first
+  image || nil
 end
 
 
@@ -116,6 +114,5 @@ end
   tests: "test-obzor"
 }.each do |type, url|
   url = $site_url + "/" + url
-  p "[debug] Load #{type} from #{url}"
   parse_pages(url, type: type.to_s)
 end
