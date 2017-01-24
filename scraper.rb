@@ -74,8 +74,9 @@ def parse_article(data={})
   #   n.remove if n.empty?
   # end
   html = content.to_html(options: Nokogiri::XML::Node::SaveOptions.new.no_empty_tags)
+
   data.merge!({
-    html: html
+    html: html,
     md: ReverseMarkdown.convert(html)
   })
 end
