@@ -83,7 +83,11 @@ end
 def remove_empty(nodeset)
   p "#{nodeset} has #{nodeset.children.length}"
   nodeset.children.each do |n|
-    n.remove if n.blank?
+    if n.blank?
+      n.remove 
+    else
+      remove_empty(n)
+    end
   end
 end
 
