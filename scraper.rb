@@ -70,10 +70,12 @@ def parse_article(data={})
     i.attribute('src').value = $agent.resolve(i.attribute('src').value).to_s
   end
 
-  content = Nokogiri::HTML.parse(content, options: Nokogiri::XML::ParseOptions.new.noblanks)
+  # content.each do |n|
+  #   n.remove if n.empty?
+  # end
 
   data.merge!({
-    content: ReverseMarkdown.convert(content.to_s)
+    content: ReverseMarkdown.convert(content.to_html(options: Nokogiri::XML::Node::SaveOptions.new.no_empty_tags))
   })
 end
 
