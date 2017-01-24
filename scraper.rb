@@ -14,7 +14,7 @@ def parse_page(url, data={})
     c.attributes.clear
   end
   content.search('img').each do |i|
-    i.attribute(:src).value = $site_url + i.attribute(:src).value
+    i.attribute(:src).value = $site_url + i.attribute('src').value
   end
 
   id = /\/(\d+)-/.match(url).to_s.to_i
