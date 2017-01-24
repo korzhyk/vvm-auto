@@ -1,4 +1,4 @@
-#require 'scraperwiki'
+require 'scraperwiki'
 require 'mechanize'
 
 agent = Mechanize.new
