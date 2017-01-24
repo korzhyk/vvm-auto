@@ -14,8 +14,8 @@ def parse_page(url, data={})
     id = /\/(\d+)-/.match(url)[1].to_i
 
     begin
-      article = ScraperWiki.select('* FROM data WHERE id = ? LIMIT 1', [id])
-      p article.to_s
+      article = ScraperWiki.select('* FROM data WHERE id = ? LIMIT 1', [id]).first
+      return if article.nil?
     rescue => error
       p "Database error: #{error.to_s}"
     end
@@ -31,7 +31,7 @@ def parse_page(url, data={})
       url: "#{$site_url}#{url}"
     })
     parse_article("#{$site_url}#{url}", data)
-    ScraperWiki.save_sqlite([:id], data)
+    ScraperWiki.save_sqlite(['id'], data)
     p "#{data[:id]} - #{data[:title]} - #{data[:url]}"
   end
   next_page_links = page.search('span.icon-next')
