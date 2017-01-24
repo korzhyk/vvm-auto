@@ -2,22 +2,30 @@ require 'scraperwiki'
 require 'mechanize'
 require 'reverse_markdown'
 
+$agent = Mechanize.new
 $site_url = "http://vvm-auto.ru"
 $image_scraped = nil
 
 
-def parse_pages(url)
-
-end
-
-def parse_page(url, data={})
+def parse_pages(url, data={})
   return if url.nil?
   p "Parsing #{data[:type]} from #{$site_url}#{url}"
-  agent = Mechanize.new
-  page = agent.get("#{$site_url}#{url}")
+  #agent = Mechanize.new
+  page = $agent.get("#{$site_url}#{url}")
+  next_page_link = page.search('span.icon-next').first
+  parse_page(page, data)
+  unless next_page_link.nil?
+    next_page_link.click
+    p "Go to next page #{next_page_link['href']}"
+    parse_page($agent.page, type: data[:type]) 
+  end
+end
+
+def parse_page(page, data={})
   posts = page.search('#content [itemprop="blogPost"]')
   posts.each do |post|
-    url = post.search('a').first.attribute('href').value
+    link_to_post = post.search('a').first
+    url = link_to_post['href']
     id = /\/(\d+)-/.match(url)[1].to_i
 
     begin
@@ -41,27 +49,20 @@ def parse_page(url, data={})
       title: title,
       annotation_text: ReverseMarkdown.convert(annotation_text),
       annotation_image: "#{$site_url}#{annotation_image}",
-      url: "#{$site_url}#{url}"
+      url: $agent.resolve(url)
     })
+    link_to_post.click
     parse_article("#{$site_url}#{url}", data)
     ScraperWiki.save_sqlite([:id], data)
     #p "#{data[:id]} - #{data[:title]} - #{data[:url]}"
     sleep 1
   end
-  next_page_links = page.search('span.icon-next')
-
-  if next_page_links.length
-    net_page_url = next_page_links.first.parent.attribute('href')
-    p "Go to next page #{net_page_url}"
-    parse_page(net_page_url, type: data[:type]) 
-  end
-
 end
 
 def parse_article(url, data={})
   return if url.nil?
-  agent = Mechanize.new
-  page = agent.get(url)
+  #agent = Mechanize.new
+  page = $agent.page #$agent.get(url)
 
   content = page.search('[itemprop="articleBody"]').first
   content.search('div.custom').each { |d| d.remove }
@@ -80,7 +81,7 @@ end
 
 def scrape_image(url)
   return nil unless url
-  image = ScraperWiki.scrape(url)
+  image = $agent.get_file(url)
   p image
   image ? "sqlite://data.db/images/1" : nil
 end
@@ -92,6 +93,5 @@ end
   tests: "test-obzor"
 }.each do |type, url|
   p "[debug] Load #{type} from #{url}"
-  
-  parse_page("/" << url, type: type.to_s)
+  parse_pages("/" << url, type: type.to_s)
 end
