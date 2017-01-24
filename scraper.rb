@@ -72,7 +72,7 @@ def parse_article(data={})
 
   remove_empty(content)
 
-  html = content.inner_html
+  html = content.to_s
 
   data.merge!({
     html: html,
