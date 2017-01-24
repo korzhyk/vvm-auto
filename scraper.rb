@@ -23,7 +23,7 @@ def parse_page(url, data={})
 
     title = annotation.search('a').first.child.content.strip
     annotation_text = annotation.search('p').first.nil? ? nil : annotation.search('p').first.child.content
-    annotation_image = annotation.search('[itemprop="thumbnailUrl"]').first.nil? ? nil, annotation.search('[itemprop="thumbnailUrl"]').attribute('src').value
+    annotation_image = annotation.search('[itemprop="thumbnailUrl"]').first.nil? ? nil : annotation.search('[itemprop="thumbnailUrl"]').attribute('src').value
     data.merge!({
       id: id,
       title: title,
