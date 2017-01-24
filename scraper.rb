@@ -28,7 +28,7 @@ end
 
 def parse_article(url, data={})
   id = /\/(\d+)-/.match(url)[1].to_i
-  url = "#{$site_url}/#{url}"
+  url = "#{$site_url}#{url}"
   agent = Mechanize.new
   page = agent.get(url)
 
