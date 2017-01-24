@@ -31,13 +31,13 @@ def parse_page(url, data={})
       "url": "#{$site_url}#{url}"
     })
     parse_article("#{$site_url}#{url}", data)
-    ScraperWiki.save_sqlite(['id'], data)
-    p "#{data['id']} - #{data['title']} - #{data['url']}"
+    ScraperWiki.save_sqlite([data[:id]], data)
+    p "#{data[:id]} - #{data[:title]} - #{data[:url]}"
   end
   next_page_links = page.search('span.icon-next')
 
   if next_page_links.length
-    parse_page(next_page_links.first.parent.attribute('href'), type: data['type']) 
+    parse_page(next_page_links.first.parent.attribute('href'), type: data[:type]) 
   end
 
 end
