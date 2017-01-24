@@ -24,20 +24,20 @@ def parse_page(url, data={})
     annotation_text = annotation.search('p').length ? annotation.search('p').first.child.content : nil
     annotation_image = annotation.search('[itemprop="thumbnailUrl"]').length ? annotation.search('[itemprop="thumbnailUrl"]').attribute('src').value : nil
     data.merge!({
-      id: id,
-      title: title,
-      annotation_text: annotation_text,
-      annotation_image: "#{$site_url}#{annotation_image}",
-      url: "#{$site_url}#{url}"
+      "id": id,
+      "title": title,
+      "annotation_text": annotation_text,
+      "annotation_image": "#{$site_url}#{annotation_image}",
+      "url": "#{$site_url}#{url}"
     })
     parse_article("#{$site_url}#{url}", data)
-    ScraperWiki.save_sqlite([:id], data)
-    p "#{data[:id]} - #{data[:title]} - #{data[:url]}"
+    ScraperWiki.save_sqlite(['id'], data)
+    p "#{data['id']} - #{data['title']} - #{data['url']}"
   end
   next_page_links = page.search('span.icon-next')
 
   if next_page_links.length
-    parse_page(next_page_links.first.parent.attribute('href'), type: data[:type]) 
+    parse_page(next_page_links.first.parent.attribute('href'), type: data['type']) 
   end
 
 end
@@ -58,7 +58,7 @@ def parse_article(url, data={})
   end
 
   data.merge!({
-    content: content.to_s
+    "content": content.to_s
   })
 end
 
