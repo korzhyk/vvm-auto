@@ -7,7 +7,7 @@ id_re = /\/(\d+)-/
 site_url = "http://vvm-auto.ru"
 
 def parse_page(url, data={})
-  page = agent.get("#{site_url}/#{url}")
+  page = agent.get("#{site_url}#{url}")
 
   content = page.search('[itemprop="articleBody"]').first.to_s
 
