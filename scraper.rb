@@ -1,13 +1,11 @@
 require 'scraperwiki'
 require 'mechanize'
 
-agent = Mechanize.new
-
-site_url = "http://vvm-auto.ru"
+$agent = Mechanize.new
+$site_url = "http://vvm-auto.ru"
 
 def parse_page(url, data={})
-  agent = Mechanize.new
-  page = agent.get("#{site_url}#{url}")
+  page = $agent.get("#{$site_url}#{url}")
 
   content = page.search('[itemprop="articleBody"]').first.to_s
 
@@ -25,7 +23,7 @@ end
   tests: "test-obzor"
 }.each do |type, url|
   p "[debug] Load #{type} from #{url}"
-  page = agent.get("#{site_url}/#{url}")
+  page = $agent.get("#{$site_url}/#{url}")
   annotations = page.search('#content [itemprop="blogPost"]')
   annotations.each do |annotation|
     url = annotation.search('a').first.attribute('href').value
