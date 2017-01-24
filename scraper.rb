@@ -44,7 +44,7 @@ end
     }
     parse_page(url, data)
     ScraperWiki.save_sqlite([data.id], data)
-    puts data.to_s
+    p data.to_s
   end
   
 end
