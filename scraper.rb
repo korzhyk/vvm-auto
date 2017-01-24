@@ -92,7 +92,7 @@ def remove_empty(node)
   end
   if $i < 5
     p "Node [blank:#{node.blank?}|empty:#{node.empty?}] #{node.inspect}"
-    $i++
+    $i += 1
   end
 end
 
