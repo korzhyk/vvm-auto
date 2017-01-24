@@ -37,7 +37,9 @@ def parse_page(url, data={})
   next_page_links = page.search('span.icon-next')
 
   if next_page_links.length
-    parse_page(next_page_links.first.parent.attribute('href'), type: data[:type]) 
+    net_page_url = next_page_links.first.parent.attribute('href')
+    p "Go to next page #{net_page_url}"
+    parse_page(net_page_url, type: data[:type]) 
   end
 
 end
