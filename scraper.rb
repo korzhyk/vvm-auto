@@ -13,6 +13,9 @@ def parse_page(url, data={})
     c.remove if c.blank?
     c.attributes.clear
   end
+  content.images.each do |i|
+    i.attribute(:src).value = $site_url + i.attribute(:src).value
+  end
 
   id = /\/(\d+)-/.match(url).to_s.to_i
   data.merge!({
