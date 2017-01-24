@@ -67,7 +67,7 @@ def parse_article(data={})
 
   remove_empty(content)
 
-  html = content.to_xhtml.strip
+  html = content.inner_html.strip
   md = ReverseMarkdown.convert(html)
   
   data.merge!({
@@ -80,6 +80,7 @@ def remove_empty(node)
   unless node.children.empty?
     node.children.each { |c| remove_empty(c) }  
   end
+
   # p "==========================================================================="
   if node.text? && node.blank?
     # p "remove text #{node.keys}"
@@ -89,7 +90,10 @@ def remove_empty(node)
   if node.name != 'img' && !node['src'] && !node.text? && node.children.empty?
     # p "remove element #{node.name}"
     node.remove
-  end  
+  end
+  
+  %[id class style].each { |a| node.key?(a) && node.delete(a) }
+  
   # p "Node [type:#{node.type} | text:#{node.text?} | element:#{node.element?} | fragment:#{node.fragment?}]"
   # p "Node [blank:#{node.blank?} | empty:#{node.children.empty?} | read_only:#{node.read_only?}] #{node}"
 end
