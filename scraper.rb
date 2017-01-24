@@ -1,25 +1,41 @@
-# This is a template for a Ruby scraper on morph.io (https://morph.io)
-# including some code snippets below that you should find helpful
+require 'scraperwiki'
+require 'mechanize'
 
-# require 'scraperwiki'
-# require 'mechanize'
-#
-# agent = Mechanize.new
-#
-# # Read in a page
-# page = agent.get("http://foo.com")
-#
-# # Find somehing on the page using css selectors
-# p page.at('div.content')
-#
-# # Write out to the sqlite database using scraperwiki library
-# ScraperWiki.save_sqlite(["name"], {"name" => "susan", "occupation" => "software developer"})
-#
-# # An arbitrary query against the database
-# ScraperWiki.select("* from data where 'name'='peter'")
+agent = Mechanize.new
 
-# You don't have to do things with the Mechanize or ScraperWiki libraries.
-# You can use whatever gems you want: https://morph.io/documentation/ruby
-# All that matters is that your final data is written to an SQLite database
-# called "data.sqlite" in the current working directory which has at least a table
-# called "data".
+{
+  experience: "http://vvm-auto.ru/opyt-ekspluatatsii",
+  articles: "http://vvm-auto.ru/publikatsii",
+  tests: "http://vvm-auto.ru/test-obzor"
+}.each do |type, base_url|
+  p "[debug] Load #{type} from #{base_url}"
+  page = agent.get(base_url)
+  annotations = page.search('#content [itemprop="blogPost"]')
+  annotations.each do |annotation|
+    url = annotation.search('[itemprop="url"]')[0].href
+    title = annotation.search('[itemprop="url"]')[0].text
+    annotation_text = annotation.search('p')[0].text
+    annotation_image = annotation.search('[itemprop="thumbnailUrl"]')[0].src
+    data = {
+      title: title,
+      annotation_text: annotation_text,
+      annotation_image: annotation_image
+    }
+    parse_page(url, data)
+  end
+  
+end
+
+
+
+def parse_page(url, data={})
+  p data.merge!({
+    id: 1,
+    type: 'experience',
+    title: 'Title',
+    annotation_image: 'Annotation image',
+    annotation_text: 'Annotation',
+    article: 'Full text',
+    url: url
+  }).to_s
+end
