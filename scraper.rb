@@ -86,7 +86,7 @@ def remove_empty(node, parent=nil)
 
   if node.blank?
     node.remove
-    if parent && parent.empty?
+    if parent && parent.children.length == 0
       parent.remove
     end
   else
