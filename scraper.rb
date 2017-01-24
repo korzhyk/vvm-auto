@@ -12,8 +12,8 @@ agent = Mechanize.new
   page = agent.get(base_url)
   annotations = page.search('#content [itemprop="blogPost"]')
   annotations.each do |annotation|
-    url = annotation.links[0].href
-    title = annotation.links[0].text
+    url = annotation.search('a')[0].href
+    title = annotation.search('a')[0].text
     annotation_text = annotation.search('p')[0].text
     annotation_image = annotation.search('[itemprop="thumbnailUrl"]')[0].src
     data = {
