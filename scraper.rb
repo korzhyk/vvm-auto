@@ -13,7 +13,7 @@ def parse_page(url, data={})
     c.remove if c.blank?
     c.attributes.clear
   end
-  content.images.each do |i|
+  content.search('img').each do |i|
     i.attribute(:src).value = $site_url + i.attribute(:src).value
   end
 
