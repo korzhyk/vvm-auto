@@ -13,7 +13,7 @@ def parse_pages(url, data={})
   page = $agent.get(url)
   next_page_link = page.search('span.icon-next').length ? page.search('span.icon-next').first.parent.attribute('href').value : nil
   parse_page(data)
-  unless true || next_page_link.nil?
+  unless next_page_link.nil?
     p "[debug] Go to next page #{next_page_link}"
     parse_pages($agent.resolve(next_page_link), data) 
   end
