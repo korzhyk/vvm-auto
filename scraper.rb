@@ -84,7 +84,7 @@ def remove_empty(node)
   
   allowed = %w(alt title href src)
   
-  node.attributes.each { |a| a.remove unless allowed.include? a.name }
+  node.attribute_nodes.each { |a| a.remove unless allowed.include?(a.name) }
   
   unless node.children.empty?
     node.children.each { |c| remove_empty(c) }  
