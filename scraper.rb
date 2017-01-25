@@ -12,9 +12,9 @@ $image_scraped = nil
 def parse_pages(url, data={})
   p "[debug] Parsing #{data[:type]} from #{url}"
   page = $agent.get(url)
-  next_page_link = page.search('span.icon-next').length ? page.search('span.icon-next').first.parent.attribute('href').value : nil
+  next_page_link = page.search('span.icon-next').length ? page.search('span.icon-next').first.parent['href'] : nil
   parse_page(data)
-  unless next_page_link.nil?
+  if next_page_link
     parse_pages($agent.resolve(next_page_link), data) 
   end
 end
