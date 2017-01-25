@@ -71,7 +71,7 @@ def parse_article(data={})
 
   remove_empty(content)
 
-  html = content.inner_html.strip
+  html = content.inner_html.each_line.reject{|x| x.strip == ""}.join
   md = ReverseMarkdown.convert(html)
   
   data.merge!({
