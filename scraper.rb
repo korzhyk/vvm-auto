@@ -62,6 +62,7 @@ def parse_article(data={})
 
   content = page.search('[itemprop="articleBody"]').first
   content.search('div.custom').each { |d| d.remove }
+  content.search('script').each { |d| d.remove }
   content.search('img').each do |i|
     i['src'] = $agent.resolve(i['src']).to_s
     scraped = scrape_image(i['src'])
@@ -80,6 +81,11 @@ def parse_article(data={})
 end
 
 def remove_empty(node)
+  
+  allowed = %w(alt title href src)
+  
+  node.attributes.each { |a| a.remove unless allowed.include? a.name }
+  
   unless node.children.empty?
     node.children.each { |c| remove_empty(c) }  
   end
@@ -94,9 +100,7 @@ def remove_empty(node)
     # p "remove element #{node.name}"
     node.remove
   end
-  
-  %w(id class style).each { |a| node.key?(a) && node.delete(a) }
-  
+
   # p "Node [type:#{node.type} | text:#{node.text?} | element:#{node.element?} | fragment:#{node.fragment?}]"
   # p "Node [blank:#{node.blank?} | empty:#{node.children.empty?} | read_only:#{node.read_only?}] #{node}"
 end
