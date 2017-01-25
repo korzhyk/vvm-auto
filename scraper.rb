@@ -2,6 +2,7 @@ require 'scraperwiki'
 require 'mechanize'
 require 'nokogiri'
 require 'reverse_markdown'
+require 'zlib'
 
 $agent = Mechanize.new
 $site_url = "http://vvm-auto.ru"
@@ -45,9 +46,11 @@ def parse_page(data={})
       annotation_image: "#{$site_url}#{annotation_image}",
       url: url.to_s
     })
+    
     $agent.get(url)
     parse_article(data)
     ScraperWiki.save_sqlite([:id], data)
+    
     p "[debug] Article with id = #{data[:id]} was parsed, full link: #{url}"
     sleep 5
   end
@@ -92,7 +95,7 @@ def remove_empty(node)
     node.remove
   end
   
-  %[id class style].each { |a| node.key?(a) && node.delete(a) }
+  %w(id class style).each { |a| node.key?(a) && node.delete(a) }
   
   # p "Node [type:#{node.type} | text:#{node.text?} | element:#{node.element?} | fragment:#{node.fragment?}]"
   # p "Node [blank:#{node.blank?} | empty:#{node.children.empty?} | read_only:#{node.read_only?}] #{node}"
@@ -101,6 +104,7 @@ end
 def scrape_image(url)
   return nil unless url
   image = $agent.get_file(url)
+  image = Zlib::Deflate.deflate(image)
   p "[debug] image #{url} fetched, size is: #{image.length}"
   ScraperWiki.save_sqlite([:url], { url: url.to_s, blob: image }, 'images').first
 end
