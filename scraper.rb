@@ -24,7 +24,7 @@ def parse_page(data={})
   posts = page.search('#content [itemprop="blogPost"]')
   posts.each do |post|
     link_to_post = post.search('a').first
-    url = $agent.resolve(link_to_post.attribute('href'))
+    url = $agent.resolve(link_to_post['href'])
     id = /\/(\d+)-/.match(url.to_s)[1].to_i
 
     begin
