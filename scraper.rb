@@ -15,7 +15,6 @@ def parse_pages(url, data={})
   next_page_link = page.search('span.icon-next').length ? page.search('span.icon-next').first.parent.attribute('href').value : nil
   parse_page(data)
   unless next_page_link.nil?
-    p "[debug] Go to next page #{next_page_link}"
     parse_pages($agent.resolve(next_page_link), data) 
   end
 end
@@ -31,8 +30,8 @@ def parse_page(data={})
     begin
       article = ScraperWiki.select('* FROM data WHERE id = ? LIMIT 1', [id]).first
       next unless article.nil?
-    rescue => error
-      p "Database error: #{error.to_s}"
+    rescue => e
+      p "Database error #{e.to_s}"
     end
 
     title = post.search('a').first.child.content.strip
@@ -57,9 +56,7 @@ def parse_page(data={})
 end
 
 def parse_article(data={})
-  #agent = Mechanize.new
-  page = $agent.page #$agent.get(url)
-
+  page = $agent.page
   content = page.search('[itemprop="articleBody"]').first
   content.search('div.custom').each { |d| d.remove }
   content.search('script').each { |d| d.remove }
@@ -69,9 +66,9 @@ def parse_article(data={})
     i.remove unless scraped
   end
 
-  remove_empty(content)
+  format_content(content)
 
-  html = content.inner_html.each_line.reject{|x| x.strip == ""}.join
+  html = content.inner_html
   md = ReverseMarkdown.convert(html)
   
   data.merge!({
@@ -80,37 +77,53 @@ def parse_article(data={})
   })
 end
 
-def remove_empty(node)
+def format_content(node)
   
   allowed = %w(alt title href src)
-  
   node.attribute_nodes.each { |a| a.remove unless allowed.include?(a.name) }
   
   unless node.children.empty?
-    node.children.each { |c| remove_empty(c) }  
+    node.children.each { |c| format_content(c) }  
   end
 
-  # p "==========================================================================="
   if node.text? && node.blank?
-    # p "remove text #{node.keys}"
+    node.remove
+  end
+  
+  block_elements = %w(div p)
+  table_elements = %W(td th)
+  
+  if node.element? && block_elements.include?(node.name) && node.parent && table_elements.include?(node.parent.name)
+    node.swap node.children
+  end
+  
+  if node.element? && node.name == 'table'
+    if !node.children.empty? && node.children.first.name != 'thead'
+      first_tr = node.search('tr').first
+      first_tr.children.each { |c| c.name = 'th'} if first_tr
+    end
+  end
+  
+  nbsp = Nokogiri::HTML("&nbsp;").text
+  if node.text? && node.text == nbsp
     node.remove
   end
   
   if node.name != 'img' && !node['src'] && !node.text? && node.children.empty?
-    # p "remove element #{node.name}"
     node.remove
   end
-
-  # p "Node [type:#{node.type} | text:#{node.text?} | element:#{node.element?} | fragment:#{node.fragment?}]"
-  # p "Node [blank:#{node.blank?} | empty:#{node.children.empty?} | read_only:#{node.read_only?}] #{node}"
 end
 
 def scrape_image(url)
   return nil unless url
-  image = $agent.get_file(url)
-  image = Zlib::Deflate.deflate(image)
-  p "[debug] image #{url} fetched, size is: #{image.length}"
-  ScraperWiki.save_sqlite([:url], { url: url.to_s, blob: image }, 'images').first
+  begin
+    image = $agent.get_file(url)
+    image = Zlib::Deflate.deflate(image)
+    ScraperWiki.save_sqlite([:url], { url: url.to_s, blob: image }, 'images').first
+  rescue => e
+    p "[debug] Image error #{url} - #{e.to_s}"
+    nil
+  end
 end
 
 
