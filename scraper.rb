@@ -6,8 +6,6 @@ require 'zlib'
 
 $agent = Mechanize.new
 $site_url = "http://vvm-auto.ru"
-$image_scraped = nil
-
 
 def parse_pages(url, data={})
   p "[debug] Parsing #{data[:type]} from #{url}"
