@@ -25,7 +25,7 @@ def parse_page(data={})
     id = /\/(\d+)-/.match(url.to_s)[1].to_i
 
     begin
-      article = ScraperWiki.select('* FROM data WHERE id = ? LIMIT 1', [id]).first
+      article = ScraperWiki.select('id FROM data WHERE id = ? LIMIT 1', [id]).first
       next unless article.nil?
     rescue => e
       p "Database error #{e.to_s}"
@@ -47,7 +47,7 @@ def parse_page(data={})
 
     $agent.get(url)
     parse_article(data)
-    ScraperWiki.save_sqlite([:id], data)
+    ScraperWiki.save_sqlite([:id], data, 'data')
 
     p "[debug] Article with id = #{data[:id]} was parsed, full link: #{url}"
     sleep 5
