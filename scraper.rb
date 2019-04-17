@@ -126,9 +126,16 @@ def scrape_image(url)
   end
 end
 
+$types = {
+  '/opyt-ekspluatatsii' => 'experience',
+  '/publikatsii' => 'articles',
+  '/test-obzor' => 'tests'
+}
+
 $agent.get($site_url).search('[role="navigation"] a').each do |link|
   if link['href'] and link['href'] != '/' then
+    type = $types[(link['href']).sub(/\//, '')] || link.text
     p "[debug] parsing section `#{link.text}`"
-    parse_pages($site_url + link['href'], type: link.text)
+    parse_pages($site_url + link['href'], type: type)
   end
 end
