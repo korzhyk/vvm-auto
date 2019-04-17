@@ -4,9 +4,8 @@
 
 source "https://rubygems.org"
 
-ruby "2.3.0"
+ruby "2.3.7"
 
-gem "scraperwiki", git: "https://github.com/openaustralia/scraperwiki-ruby.git", branch: "morph_defaults"
+gem "scraperwiki"
 gem "mechanize"
-gem "reverse_markdown"
 gem "nokogiri", ">= 1.8.5"
