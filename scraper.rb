@@ -5,7 +5,7 @@ require 'reverse_markdown'
 require 'zlib'
 
 $agent = Mechanize.new
-$site_url = "http://vvm-auto.ru"
+$site_url = "https://vvm-auto.ru"
 
 def parse_pages(url, data={})
   p "[debug] Parsing #{data[:type]} from #{url}"
@@ -55,6 +55,8 @@ end
 
 def parse_article(data={})
   page = $agent.page
+  category = page.search('[itemprop="genre"]').first
+  category = category.text unless category.nil?
   content = page.search('[itemprop="articleBody"]').first
   content.search('div.custom').each { |d| d.remove }
   content.search('script').each { |d| d.remove }
@@ -70,6 +72,7 @@ def parse_article(data={})
   md = ReverseMarkdown.convert(html)
   
   data.merge!({
+    category: category,
     html: html,
     md: md
   })
@@ -124,12 +127,6 @@ def scrape_image(url)
   end
 end
 
-
-{
-  experience: "opyt-ekspluatatsii",
-  articles: "publikatsii",
-  tests: "test-obzor"
-}.each do |type, url|
-  url = $site_url + "/" + url
-  parse_pages(url, type: type.to_s)
+$agent.get($site_url).search('[role="navigation"] a').each do |link|
+  parse_pages($site_url + link['href'], type: link.text)
 end
